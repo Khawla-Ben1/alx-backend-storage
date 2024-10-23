@@ -92,3 +92,21 @@ class Cache:
             The retrieved data as a UTF-8 string.
         """
         return self.decode("utf-8")
+
+def replay(method: Callable) -> None:
+    """
+    Displays the history of calls for a particular method.
+    Args:
+        method (Callable): The method for which to replay the call history.
+    """
+    key = method.__qualname__
+    inputs_key = f"{key}:inputs"
+    outputs_key = f"{key}:outputs"
+
+    inputs = cache._redis.lrange(inputs_key, 0, -1)
+    outputs = cache._redis.lrange(outputs_key, 0, -1)
+
+    call_count = len(inputs)
+    print(f"{key} was called {call_count} times:")
+    for input_value, output_value in zip(inputs, outputs):
+        print(f"{key}(*{eval(input_value.decode('utf-8'))}) -> {output_value.decode('utf-8')}")
