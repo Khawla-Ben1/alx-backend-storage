@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+display the history of calls of a particular function
+"""
+
 import redis
 from typing import Union, Optional, Callable
 from uuid import uuid4
@@ -50,7 +54,6 @@ class Cache:
     Cache class that stores data in Redis & provides retrieval methods
     """
 
-
     def __init__(self):
         """
         Initializes the Redis client and flushes the database
@@ -75,7 +78,7 @@ class Cache:
         """
         Retrieves the stored data from Redis & may apply a conversion function.
         Returns:
-            The retrieved data, may be converted based on d given conversion func
+            The retrieved data
         """
         if fn:
             return fn(self._redis.get(key))
@@ -93,6 +96,7 @@ class Cache:
         """
         return self.decode("utf-8")
 
+
 def replay(method: Callable) -> None:
     """
     Displays the history of calls for a particular method.
@@ -109,4 +113,9 @@ def replay(method: Callable) -> None:
     call_count = len(inputs)
     print(f"{key} was called {call_count} times:")
     for input_value, output_value in zip(inputs, outputs):
-        print(f"{key}(*{eval(input_value.decode('utf-8'))}) -> {output_value.decode('utf-8')}")
+        decoded_input = eval(input_value.decode('utf-8'))
+        decoded_output = output_value.decode('utf-8')
+        print(f"{key}(*{decoded_input}) -> {decoded_output}")
+
+if __name__ == "__main__":
+    cache = Cache() 
